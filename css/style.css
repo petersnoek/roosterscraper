@@ -1,0 +1,85 @@
+html {
+	font-family: 'Roboto', sans-serif;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+}
+
+div.content {
+	padding: 1em;
+}
+
+div.debugbar {
+	position: relative;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 120px;
+	background-color: pink;
+	border: 1px solid silver;
+}
+
+div.debugbar .col {
+	width: 32%;
+	float: left;
+	margin-right: 1%;
+	font-size: 8pt;
+	overflow-y: scroll;
+	height: 120px;
+}
+
+div.debugbar .col p {
+	margin: 0;
+	padding: 0;
+}
+
+.loginform label {
+    display:inline-block;
+    width: 100px;
+}
+
+.topbar {
+	width: 100%-10px;
+	height: 21px;
+	color: white;
+	background-color: black;
+	padding: 5px;
+}
+
+.errors {
+	color: #D8000C;
+	background-color: #FFBABA;
+	margin: 10px 0;
+	padding: 12px;
+}
+
+.topbar span a {
+	color: white;
+}
+
+table.roostertabel {
+    border-collapse: collapse;
+    font-family: Verdana;
+    font-size: 8pt;
+}
+
+table.roostertabel tr td {
+    border: 1px solid silver;
+}
+
+table.roostertabel tr th {
+
+    color: black;
+}
+
+table.roostertabel tr td.nr, table.roostertabel tr td.tijd {
+    color: darkgray;
+}
+
+table.roostertabel tr td.separator {
+    color: darkgray;
+    background-color: lightgrey;
+    width: 20px;
+}
