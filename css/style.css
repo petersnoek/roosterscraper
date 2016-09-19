@@ -61,17 +61,23 @@ div.debugbar .col p {
 
 table.roostertabel {
     border-collapse: collapse;
-    font-family: Verdana;
+    font-family: Roboto;
     font-size: 8pt;
+    horiz-align: center;
 }
 
 table.roostertabel tr td {
+    width: 32px;
     border: 1px solid silver;
 }
 
 table.roostertabel tr th {
-
+	width: 32px;
     color: black;
+}
+
+table.roostertabel tr th.coldocent {
+
 }
 
 table.roostertabel tr td.nr, table.roostertabel tr td.tijd {

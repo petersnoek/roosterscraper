@@ -11,9 +11,15 @@ class Les {
     public $starttijd;
     public $eindtijd;
     public $lescode;
+    public $tijden;
     public $klassen_array;
     public $lokalen_array;
 
+    function __construct() {
+        $this->klassen_array = array();
+        $this->lokalen_array = array();
+        $this->tijden = array();
+    }
 
     public $replaceklassen = [
         'MBICO' => '',
@@ -26,7 +32,6 @@ class Les {
             return mktime($hour = $parts[0], $minute = $parts[1]);
         } else return null;
     }
-
 
     function GetEindTS() {
         if (isset($this->eindtijd)) {
@@ -48,8 +53,16 @@ class Les {
             return '';
     }
     function GetKlassenShort() {
-        if ( isset($this->klassen_array) && sizeof($this->klassen_array)>0)
-            return str_replace(array_keys($this->replaceklassen), array_values($this->replaceklassen), implode(' ', $this->klassen_array));
+        if ( isset($this->klassen_array) && sizeof($this->klassen_array)>0) {
+            $out = "";
+            foreach ($this->klassen_array as $k) {
+                $klas = str_replace(array_keys($this->replaceklassen), array_values($this->replaceklassen), $k);
+                $klas = rtrim($klas, "0");
+                $klas = rtrim($klas, "1");
+                $out .= $klas . ' ';
+            }
+            return rtrim($out, ' ');
+        }
         else
             return '';
     }
@@ -75,6 +88,7 @@ class LessenContainer
         'Projecten' => 'PROJ',
         'Nederlands' => 'NED',
         'Vormgeving' => 'VGV',
+        'SLB/BS' => 'SLBS',
     ];
 
     public $allelokalen = [
@@ -90,19 +104,21 @@ class LessenContainer
         'MBW.1d170' => '1d170',
     ];
 
+    function __construct()
+    {
+        $this->lessen = array();
+    }
 
-    function ZoekLes($dag, $tijd, $docent)
+
+    function ZoekLesEnKlas($dag, $tijd, $docent)
     {
         $timeparts = explode(':', $tijd);
         $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
         foreach ($this->lessen as $les) {
             if ($les->dag == $dag && $les->docent == $docent && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS) {
-                if (array_key_exists($les->lescode, $this->lesalias) ) {
-                    return $this->lesalias[$les->lescode];
-                }
-                else {
-                    return $les->lescode;
-                }
+                $lesCode = (array_key_exists($les->lescode, $this->lesalias) ? $this->lesalias[$les->lescode] : $les->lescode);
+                return '<span style="color: blue;">' . $lesCode . '</span> ' . $les->GetKlassenShort();
+
             }
 
         }
@@ -129,18 +145,22 @@ class LessenContainer
         foreach ($this->lessen as $les) {
             if (isset($les->lokalen_array)==false) $les->lokalen_array = Array();
             if ($les->dag == $dag && in_array($lokaal, $les->lokalen_array) && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS)
-                return $les->GetKlassenShort();
+                return "<span style='color: blue;'>" . $les->docent . "</span> " . $les->GetKlassenShort();
         }
         return "-";
     }
 
-    function ZoekDocent($dag, $tijd, $klas) {
+    function ZoekDocentEnLes($dag, $tijd, $klas) {
         $timeparts = explode(':', $tijd);
         $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
 
         foreach ($this->lessen as $les) {
-            if ($les->dag == $dag && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS && in_array($klas, $les->klassen_array)  )
-                return $les->docent;
+            if ($les->dag == $dag && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS && in_array($klas, $les->klassen_array)  ) {
+                $lesCode = (array_key_exists($les->lescode, $this->lesalias) ? $this->lesalias[$les->lescode]
+                    : $les->lescode);
+
+                return "<span style='color: blue;'>" . $lesCode . "</span> " . $les->docent;
+            }
         }
         //if ( $dag == 'ma') Debug(sprintf('%s %s %s -', $dag, $tijd, $klas));
 
@@ -154,9 +174,11 @@ class DocentroosterScraper {
     public $docent;
     public $rawdata;
     public $lessenContainer;
-    
-    function __construct($docent, $url) {
+    public $alle_klassen;
+
+    function __construct($docent, $url, $alleklassen) {
         $this->lessenContainer = new LessenContainer();
+        $this->alle_klassen = $alleklassen;
 
         $this->docent = $docent;
         //Debug('Scraping: ' . $url);
@@ -223,8 +245,10 @@ class DocentroosterScraper {
                 $lesobj->eindtijd=$start[1];
                 $lesobj->lescode = $xpath->query('div[@class="LesCode"]/@title', $les)->item(0)->nodeValue;
 
-                $klassen = $xpath->query('div[@class="AttendeeBlockColumn_1"]/div/a', $les);
-                foreach ($klassen as $klas) {
+                $klassen_in_les = $xpath->query('div[@class="AttendeeBlockColumn_1"]/div/a', $les);
+                foreach ($klassen_in_les as $klas) {
+                    //$lesobj->AddKlasIfInList($klas->nodeValue, $this->alle_klassen);
+
                     $lesobj->klassen_array[] = $klas->nodeValue;
                 }
 
