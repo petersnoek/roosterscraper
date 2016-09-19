@@ -14,6 +14,27 @@ class Les {
     public $klassen_array;
     public $lokalen_array;
 
+
+    public $replaceklassen = [
+        'MBICO' => '',
+        'MBADO' => '',
+    ];
+
+    function GetStartTS() {
+        if ( isset ($this->starttijd)) {
+            $parts = explode(':', $this->starttijd);
+            return mktime($hour = $parts[0], $minute = $parts[1]);
+        } else return null;
+    }
+
+
+    function GetEindTS() {
+        if (isset($this->eindtijd)) {
+            $parts = explode(':', $this->eindtijd);
+            return mktime($hour = $parts[0], $minute = $parts[1]);
+        } else return null;
+    }
+
     function GetLokalen() {
         if ( isset($this->lokalen_array) && sizeof($this->lokalen_array)>0)
             return implode(', ', $this->lokalen_array);
@@ -28,7 +49,7 @@ class Les {
     }
     function GetKlassenShort() {
         if ( isset($this->klassen_array) && sizeof($this->klassen_array)>0)
-            return str_replace('MBICO', '', implode('*', $this->klassen_array));
+            return str_replace(array_keys($this->replaceklassen), array_values($this->replaceklassen), implode(' ', $this->klassen_array));
         else
             return '';
     }
@@ -42,34 +63,87 @@ class Les {
 class LessenContainer
 {
     public $lessen;
+    public $lesalias = [
+        'Engels' => 'ENG',
+        'Rekenen' => 'REK',
+        'Engels in de beroepscontext A2' => 'ENG',
+        'KEUZEDEEL' => 'KEUZ',
+        'Keuzedeel' => 'KEUZ',
+        'keuzedeel' => 'KEUZ',
+        'DTP vakken' => 'DTP',
+        'projecten' => 'PROJ',
+        'Projecten' => 'PROJ',
+        'Nederlands' => 'NED',
+        'Vormgeving' => 'VGV',
+    ];
+
+    public $allelokalen = [
+        'MBW.0a160' => 'a160',
+        'MBW.0a170' => 'a170',
+        'MBW.0a170B' => 'a170 vide',
+        'MBW.0a173' => 'a173',
+        'MBW.0a180' => 'a180 REF',
+        'MBW.0a180B' => 'a180 Vide',
+        'MBW.0d180' => 'd180 DTP',
+
+        'MBW.0d190' => 'd190 lab',
+        'MBW.1d170' => '1d170',
+    ];
+
 
     function ZoekLes($dag, $tijd, $docent)
     {
+        $timeparts = explode(':', $tijd);
+        $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
         foreach ($this->lessen as $les) {
-            if ($les->dag == $dag && $les->docent == $docent && $les->starttijd <= $tijd && $les->eindtijd > $tijd)
-                return $les->lescode;
+            if ($les->dag == $dag && $les->docent == $docent && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS) {
+                if (array_key_exists($les->lescode, $this->lesalias) ) {
+                    return $this->lesalias[$les->lescode];
+                }
+                else {
+                    return $les->lescode;
+                }
+            }
+
         }
         return "-";
     }
 
     function ZoekKlas($dag, $tijd, $docent)
     {
+        $timeparts = explode(':', $tijd);
+        $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
+
         foreach ($this->lessen as $les) {
-            if ($les->dag == $dag && $les->docent == $docent && $les->starttijd <= $tijd && $les->eindtijd > $tijd)
+            if ($les->dag == $dag && $les->docent == $docent && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS)
                 return $les->GetKlassen();
         }
         return "-";
     }
 
-    function ZoekDocent($dag, $tijd, $klas) {
+    function ZoekLokaalLes($dag, $tijd, $lokaal)
+    {
+        $timeparts = explode(':', $tijd);
+        $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
+
         foreach ($this->lessen as $les) {
-            //Debug($les->GetKlassen() . '<>' . $klas);
-            if ($les->dag == $dag &&
-                $les->starttijd <= $tijd && $les->eindtijd > $tijd &&
-                strpos($les->GetKlassen(), $klas)>0
-                )
-            return $les->docent;
+            if (isset($les->lokalen_array)==false) $les->lokalen_array = Array();
+            if ($les->dag == $dag && in_array($lokaal, $les->lokalen_array) && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS)
+                return $les->GetKlassenShort();
         }
+        return "-";
+    }
+
+    function ZoekDocent($dag, $tijd, $klas) {
+        $timeparts = explode(':', $tijd);
+        $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
+
+        foreach ($this->lessen as $les) {
+            if ($les->dag == $dag && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS && in_array($klas, $les->klassen_array)  )
+                return $les->docent;
+        }
+        //if ( $dag == 'ma') Debug(sprintf('%s %s %s -', $dag, $tijd, $klas));
+
         return "-";
     }
 }
@@ -156,6 +230,11 @@ class DocentroosterScraper {
 
                 $lokalen = $xpath->query('div[@class="AttendeeBlockColumn_2"]/div/a', $les);
                 foreach ($lokalen as $lokaal) {
+                    if ( array_key_exists($lokaal->nodeValue, $this->lessenContainer->allelokalen) == false ) {
+                        // voeg lokaal toe als het nog niet bestaat
+                        $lok = $lokaal->nodeValue;
+                        $this->lessenContainer->allelokalen[$lok] = $lok;
+                    }
                     $lesobj->lokalen_array[] = $lokaal->nodeValue;
                 }
 

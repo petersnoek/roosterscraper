@@ -83,3 +83,8 @@ table.roostertabel tr td.separator {
     background-color: lightgrey;
     width: 20px;
 }
+
+table.roostertabel tr td.bpv {
+    color: darkgray;
+    background-color: lightblue;
+}

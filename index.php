@@ -8,7 +8,6 @@ require_once 'inc/errors.php';
 require_once 'inc/debug.php';
 require_once 'inc/tijden.php';
 require_once 'inc/docenten.php';
-require_once 'inc/lokalen.php';
 require_once 'inc/klassen.php';
 
 
@@ -36,7 +35,7 @@ echo $blade->view()->make('main')
     ->with('lessenContainer', $lessenContainer)
     ->with('dagen', $dagen)
     ->with('tijden', $tijden)
-    ->with('lokalen', $lokalen)
+    ->with('lokalen', $lessenContainer->allelokalen)
     ->with('klassen', $klassen)
     ->withErrors($errors)
     ->render();

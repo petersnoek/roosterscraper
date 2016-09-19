@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-
+date_default_timezone_set('Europe/Amsterdam');
 
 function AddError($errormsg) {
     $_SESSION['errors'][] = $errormsg;
