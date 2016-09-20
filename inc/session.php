@@ -2,6 +2,7 @@
 
 session_start();
 date_default_timezone_set('Europe/Amsterdam');
+set_time_limit ( 60 );  // set PHP maximum execution time to 60 seconds
 
 function AddError($errormsg) {
     $_SESSION['errors'][] = $errormsg;

@@ -48,7 +48,7 @@
 			<p>Debug statements: </p>
 			@if(isset($_SESSION['debug']))
 			@foreach($_SESSION['debug'] as $key)
-				<li>{{ $key }} </li>
+				<li>{!! $key !!} </li>
 			@endforeach
 			@endif
 		</div>
@@ -56,7 +56,7 @@
 		<div class="col">
 			<p>Cookie contents: </p>
 			@foreach($_COOKIE as $key => $value)
-				<li>{{ $key }} -> {{ $value }}</li>
+				<li>{!! $key !!} -> {!! $value !!} </li>
 			@endforeach
 		</div>
 
@@ -66,7 +66,7 @@
 			<p style="font-style:italic">Not shown: $_SESSION['errors']</p>
 			@foreach($_SESSION as $key => $value)
 				@if ( $key != 'debug' && $key != 'errors')
-				<li>{{ $key }} -> {{ var_export($value) }}</li>
+				<li>{!! $key !!} -> {!! var_export($value) !!}</li>
 				@endif
 			@endforeach
 		</div>

@@ -181,16 +181,40 @@ class DocentroosterScraper {
 
         $this->docent = $docent;
         //Debug('Scraping: ' . $url);
-        // get page
-        $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-        $page = curl_exec($curl);
-        if(curl_errno($curl)) // check for execution errors
-        {
-            AddError('Scraper error for ' . $url . ':<br> ' . curl_error($curl));
-            return;
+
+        $basefolder = __DIR__ . '/../cache/docentroosters/';
+        $cachefolder = $basefolder . date('YmdH') . '/';
+        $filename = $cachefolder . Sanitize(md5($url));
+
+        // get page from cache or from url
+        if ( file_exists($filename)) {
+            $_SESSION['debug'][] = 'Getting <a href="' . $url . '">' . $url . '</a> from cache: ' . $filename;
+            // get page from cache
+            $page = file_get_contents($filename);
         }
-        curl_close($curl);
+        else {
+            $_SESSION['debug'][] = 'Getting ' . $url . ' from URL';
+            // get page from url, and write to cache
+            $curl = curl_init($url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            $page = curl_exec($curl);
+            if (curl_errno($curl)) // check for execution errors
+            {
+                AddError('Scraper error for ' . $url . ':<br> ' . curl_error($curl));
+                return;
+            }
+            curl_close($curl);
+
+            // remove old folders from cachefolder
+            rrmdir($basefolder);
+
+            // create timestamped cache folder
+            if (!file_exists($cachefolder)) mkdir($cachefolder, 0777, true);
+
+            // generate random filename and write it (if doesn't exist)
+            if (!file_exists($filename) ) file_put_contents($filename, $page);
+
+        }
 
         // load page into DOM object
         $DOM = new DOMDocument;
