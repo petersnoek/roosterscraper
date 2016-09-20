@@ -13,11 +13,8 @@ class DashboardScraper {
         $this->docenten = $docenten;
         $this->urls = $dashboard_urls;
 
-
         foreach($this->urls as $dashname=>$dashurl) {
             $basefolder = __DIR__ . '/../cache/dashboards/';
-            $cachefolder = $basefolder . date('YmdH') . '/';
-            $basefolder = 'cache/dashboards/';
             $cachefolder = $basefolder . date('YmdH') . '/';
             $filename = $cachefolder . Sanitize(md5($dashurl));
 
@@ -29,7 +26,7 @@ class DashboardScraper {
             }
             else
             {
-                $_SESSION['debug'][] = 'Getting ' . $dashurl . ' from URL';
+                $_SESSION['debug'][] = "Can't find ". $filename . ', getting ' . $dashurl . ' from URL';
                 // get page from url, and write to cache
                 $curl = curl_init($dashurl);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -47,7 +44,7 @@ class DashboardScraper {
                 // create timestamped cache folder
                 if (!file_exists($cachefolder)) mkdir($cachefolder, 0777, true);
 
-                // generate random filename and write it (if doesn't exist)
+                // write file to cache (if it does not already exist)
                 if (!file_exists($filename) ) file_put_contents($filename, $page);
 
             }

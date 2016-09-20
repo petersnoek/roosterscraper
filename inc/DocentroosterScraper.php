@@ -193,7 +193,7 @@ class DocentroosterScraper {
             $page = file_get_contents($filename);
         }
         else {
-            $_SESSION['debug'][] = 'Getting ' . $url . ' from URL';
+            $_SESSION['debug'][] = "Can't find ". $filename . ', getting ' . $url . ' from URL';
             // get page from url, and write to cache
             $curl = curl_init($url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -206,7 +206,8 @@ class DocentroosterScraper {
             curl_close($curl);
 
             // remove old folders from cachefolder
-            rrmdir($basefolder);
+            rrmdir($basefolder, date('YmdH'));
+
 
             // create timestamped cache folder
             if (!file_exists($cachefolder)) mkdir($cachefolder, 0777, true);
