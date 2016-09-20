@@ -40,7 +40,7 @@
 @yield('content')
 </div>
 
-
+@if(isset($_SESSION['debugbar']) && $_SESSION['debugbar'] )
 <div class="debugbar">
 	<div class="debugbar-inner" style="padding:3px">
 
@@ -73,6 +73,7 @@
 
 	</div>
 </div>
+@endif
 
 </body>
 </html>

@@ -17,9 +17,10 @@ class DashboardScraper {
             $basefolder = __DIR__ . '/../cache/dashboards/';
             $cachefolder = $basefolder . date('YmdH') . '/';
             $filename = $cachefolder . Sanitize(md5($dashurl));
-
+            $reload = (isset($_SESSION['reload']) && $_SESSION['reload'] );
+            
             // get page from cache or from url
-            if ( file_exists($filename)) {
+            if ( file_exists($filename) && !$reload) {
                 $_SESSION['debug'][] = 'Getting <a href="' . $dashurl . '">' . $dashurl . '</a> from cache: ' . $filename;
                 // get page from cache
                 $page = file_get_contents($filename);

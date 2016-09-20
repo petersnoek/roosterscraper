@@ -78,6 +78,24 @@ $docenten = ['ANS', 'HRR', 'ENU', 'KWS', 'VPP', 'MRC', 'SNP', 'MSR', 'HJW', 'RSP
 
 $dagen = ['ma', 'di', 'wo', 'do', 'vr'];
 
+// als bezoeker perse de laatste versie wil hebben, zet dit dan in de sessie
+if ( isset($_GET['reload']) && $_GET['reload'] == 'true') {
+    $_SESSION['reload'] = true;
+}
+else
+{
+    $_SESSION['reload'] = false;
+}
+
+// als bezoeker perse de laatste versie wil hebben, zet dit dan in de sessie
+if ( isset($_GET['debugbar']) && $_GET['debugbar'] == 'true') {
+    $_SESSION['debugbar'] = true;
+}
+else
+{
+    $_SESSION['debugbar'] = false;
+}
+
 
 // scrape het dashboard en verzamel de roosters voor de gezochte docenten
 $ds = new DashboardScraper($dashboards, $docenten);

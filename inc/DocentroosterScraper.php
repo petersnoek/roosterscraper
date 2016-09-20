@@ -185,9 +185,10 @@ class DocentroosterScraper {
         $basefolder = __DIR__ . '/../cache/docentroosters/';
         $cachefolder = $basefolder . date('YmdH') . '/';
         $filename = $cachefolder . Sanitize(md5($url));
+        $reload = (isset($_SESSION['reload']) && $_SESSION['reload'] );
 
         // get page from cache or from url
-        if ( file_exists($filename)) {
+        if ( file_exists($filename) && !$reload) {
             $_SESSION['debug'][] = 'Getting <a href="' . $url . '">' . $url . '</a> from cache: ' . $filename;
             // get page from cache
             $page = file_get_contents($filename);

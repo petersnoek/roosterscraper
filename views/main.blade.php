@@ -1,6 +1,11 @@
 @extends('_layout')
 
 @section('content')
+
+@if(isset($_SESSION['reload']) && $_SESSION['reload'])
+    <h1>Reload!</h1>
+@endif
+
 <h1>Gevonden roosters:</h1>
 
     <ul>
@@ -18,7 +23,7 @@
 </ul>
 
 <h1>Planbord</h1>
-
+<p>Klik op de naam van de dag (ma, di, enz) om in- en uit te klappen.</p>
 
 
 @foreach($dagen as $dag)

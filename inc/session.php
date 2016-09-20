@@ -1,6 +1,11 @@
 <?php
 
 session_start();
+
+if ( !isset($_SESSION['reload']) ) $_SESSION['reload'] = false;
+if ( !isset($_SESSION['debugbar']) ) $_SESSION['debugbar'] = false;
+
+
 date_default_timezone_set('Europe/Amsterdam');
 
 function AddError($errormsg) {
