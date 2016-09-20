@@ -11,14 +11,14 @@ class Les {
     public $starttijd;
     public $eindtijd;
     public $lescode;
-    public $tijden;
+    public $lesblokken;
     public $klassen_array;
     public $lokalen_array;
 
     function __construct() {
         $this->klassen_array = array();
         $this->lokalen_array = array();
-        $this->tijden = array();
+        $this->lesblokken = array();
     }
 
     public $replaceklassen = [
@@ -98,9 +98,8 @@ class LessenContainer
         'MBW.0a173' => 'a173',
         'MBW.0a180' => 'a180 REF',
         'MBW.0a180B' => 'a180 Vide',
-        'MBW.0d180' => 'd180 DTP',
-
-        'MBW.0d190' => 'd190 lab',
+        'MBW.0d180' => 'd180 lab',
+        'MBW.0d190' => 'd190 DTP',
         'MBW.1d170' => '1d170',
     ];
 
@@ -117,7 +116,7 @@ class LessenContainer
         foreach ($this->lessen as $les) {
             if ($les->dag == $dag && $les->docent == $docent && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS) {
                 $lesCode = (array_key_exists($les->lescode, $this->lesalias) ? $this->lesalias[$les->lescode] : $les->lescode);
-                return '<span style="color: blue;">' . $lesCode . '</span> ' . $les->GetKlassenShort();
+                return '<span class="cel-eerste" style="color: blue;">' . $lesCode . '</span> ' . "<span class='cel-tweede'>" . $les->GetKlassenShort() . "</span>";
 
             }
 
@@ -145,7 +144,7 @@ class LessenContainer
         foreach ($this->lessen as $les) {
             if (isset($les->lokalen_array)==false) $les->lokalen_array = Array();
             if ($les->dag == $dag && in_array($lokaal, $les->lokalen_array) && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS)
-                return "<span style='color: blue;'>" . $les->docent . "</span> " . $les->GetKlassenShort();
+                return "<span class='cel-eerste' style='color: blue;'>" . $les->docent . "</span> "  . "<span class='cel-tweede'>" .  $les->GetKlassenShort() ."</span>";
         }
         return "-";
     }
@@ -159,7 +158,7 @@ class LessenContainer
                 $lesCode = (array_key_exists($les->lescode, $this->lesalias) ? $this->lesalias[$les->lescode]
                     : $les->lescode);
 
-                return "<span style='color: blue;'>" . $lesCode . "</span> " . $les->docent;
+                return "<span class='cel-eerste' style='color: blue;'>" . $lesCode . "</span> " . "<span class='cel-tweede'>" . $les->docent . "</span>";
             }
         }
         //if ( $dag == 'ma') Debug(sprintf('%s %s %s -', $dag, $tijd, $klas));
@@ -176,7 +175,7 @@ class DocentroosterScraper {
     public $lessenContainer;
     public $alle_klassen;
 
-    function __construct($docent, $url, $alleklassen) {
+    function __construct($docent, $url, $alleklassen, $allelesblokken) {
         $this->lessenContainer = new LessenContainer();
         $this->alle_klassen = $alleklassen;
 
@@ -243,6 +242,10 @@ class DocentroosterScraper {
                 $start = explode("-", $tijden);
                 $lesobj->starttijd=$start[0];
                 $lesobj->eindtijd=$start[1];
+
+                // kijk voor elk lesblok of de les erin valt
+
+
                 $lesobj->lescode = $xpath->query('div[@class="LesCode"]/@title', $les)->item(0)->nodeValue;
 
                 $klassen_in_les = $xpath->query('div[@class="AttendeeBlockColumn_1"]/div/a', $les);

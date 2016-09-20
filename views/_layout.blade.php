@@ -2,15 +2,19 @@
 <html>
 <head>
 	<link href="css/style.css" rel="stylesheet">
-	<title>Login</title>
+	<title>Rooster</title>
 
 	<!-- font awesome -->
 	<script src="https://use.fontawesome.com/bf8ab24a40.js"></script>
 
 	<!-- font roboto -->
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
 </head>
 <body>
+
+<!-- jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
 <!-- show the topmenu bar -->
 <div class="topbar">

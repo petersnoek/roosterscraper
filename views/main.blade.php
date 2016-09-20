@@ -19,8 +19,11 @@
 
 <h1>Planbord</h1>
 
+
+
 @foreach($dagen as $dag)
-<h2>{{$dag}}</h2>
+    <h2>{{$dag}}</h2>
+
 <table class="roostertabel">
     <tr>
         <th class="nr">#</th>
@@ -62,6 +65,14 @@
     @endforeach
 </table>
 @endforeach
+
+<script>
+    $( document ).ready(function() {
+        $( "h2" ).click(function( event ) {
+            $( ".cel-tweede" ).toggle();
+        });
+    });
+</script>
 
 @endsection
 
