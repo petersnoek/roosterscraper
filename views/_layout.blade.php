@@ -1,6 +1,10 @@
 <!doctype html>
 <html>
 <head>
+
+	<meta http-equiv="language" content="NL">
+	<meta lang="NL">
+
 	<link href="css/style.css" rel="stylesheet">
 	<title>Rooster</title>
 
@@ -18,20 +22,20 @@
 
 <!-- show the topmenu bar -->
 <div class="topbar">
-	<span style="float:right;"/><span>No user logged in</span>
-	<span style="float:left;"></span>
+	<span style="float:left;">{{ $dagen[0] }}</span>
 </div>
 
 <!-- show errors, if present -->
-@if(isset($errors))				{{-- does $errors exist? --}}
-	@if($errors->any())			{{-- does $errors have any errors? --}}
-	<div class="errors" >
-	<ul>
-		@foreach ($errors->all() as $error)		
-			<li>{{ $error }}</li>
-		@endforeach
-	</ul>
-	</div>
+@if(isset($_SESSION['errors']))				{{-- does $errors exist? --}}
+	@if(sizeof($_SESSION['errors'])>0)			{{-- does $errors have any errors? --}}
+		<div class="errors" >
+		<ul>
+			@foreach ($_SESSION['errors'] as $error)
+				<li>{{ $error }}</li>
+			@endforeach
+			<?php $_SESSION['errors'] = []; ?>
+		</ul>
+		</div>
 	@endif
 @endif
 

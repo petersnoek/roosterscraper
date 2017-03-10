@@ -3,169 +3,8 @@
 require_once 'inc/session.php';
 require_once 'vendor/autoload.php';
 require_once 'inc/debug.php';
-
-class Les {
-    public $docent;
-    public $dag;            // ma di wo do vr
-    //public $datum;
-    public $starttijd;
-    public $eindtijd;
-    public $lescode;
-    public $lesblokken;
-    public $klassen_array;
-    public $lokalen_array;
-
-    function __construct() {
-        $this->klassen_array = array();
-        $this->lokalen_array = array();
-        $this->lesblokken = array();
-    }
-
-    public $replaceklassen = [
-        'MBICO' => '',
-        'MBADO' => '',
-    ];
-
-    function GetStartTS() {
-        if ( isset ($this->starttijd)) {
-            $parts = explode(':', $this->starttijd);
-            return mktime($hour = $parts[0], $minute = $parts[1]);
-        } else return null;
-    }
-
-    function GetEindTS() {
-        if (isset($this->eindtijd)) {
-            $parts = explode(':', $this->eindtijd);
-            return mktime($hour = $parts[0], $minute = $parts[1]);
-        } else return null;
-    }
-
-    function GetLokalen() {
-        if ( isset($this->lokalen_array) && sizeof($this->lokalen_array)>0)
-            return implode(', ', $this->lokalen_array);
-        else
-            return '';
-    }
-    function GetKlassen() {
-        if ( isset($this->klassen_array) && sizeof($this->klassen_array)>0)
-            return implode(' ', $this->klassen_array);
-        else
-            return '';
-    }
-    function GetKlassenShort() {
-        if ( isset($this->klassen_array) && sizeof($this->klassen_array)>0) {
-            $out = "";
-            foreach ($this->klassen_array as $k) {
-                $klas = str_replace(array_keys($this->replaceklassen), array_values($this->replaceklassen), $k);
-                $klas = rtrim($klas, "0");
-                $klas = rtrim($klas, "1");
-                $out .= $klas . ' ';
-            }
-            return rtrim($out, ' ');
-        }
-        else
-            return '';
-    }
-
-    function __toString()
-    {
-        return sprintf('? ? ? ?-?', $this->docent, $this->dag, $this->lescode, $this->starttijd, $this->einddtijd);
-    }
-}
-
-class LessenContainer
-{
-    public $lessen;
-    public $lesalias = [
-        'Engels' => 'ENG',
-        'Rekenen' => 'REK',
-        'Engels in de beroepscontext A2' => 'ENG',
-        'KEUZEDEEL' => 'KEUZ',
-        'Keuzedeel' => 'KEUZ',
-        'keuzedeel' => 'KEUZ',
-        'DTP vakken' => 'DTP',
-        'projecten' => 'PROJ',
-        'Projecten' => 'PROJ',
-        'Nederlands' => 'NED',
-        'Vormgeving' => 'VGV',
-        'SLB/BS' => 'SLBS',
-    ];
-
-    public $allelokalen = [
-        'MBW.0a160' => 'a160',
-        'MBW.0a170' => 'a170',
-        'MBW.0a170B' => 'a170 vide',
-        'MBW.0a173' => 'a173',
-        'MBW.0a180' => 'a180 REF',
-        'MBW.0a180B' => 'a180 Vide',
-        'MBW.0d180' => 'd180 lab',
-        'MBW.0d190' => 'd190 DTP',
-        'MBW.1d170' => '1d170',
-    ];
-
-    function __construct()
-    {
-        $this->lessen = array();
-    }
-
-
-    function ZoekLesEnKlas($dag, $tijd, $docent)
-    {
-        $timeparts = explode(':', $tijd);
-        $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
-        foreach ($this->lessen as $les) {
-            if ($les->dag == $dag && $les->docent == $docent && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS) {
-                $lesCode = (array_key_exists($les->lescode, $this->lesalias) ? $this->lesalias[$les->lescode] : $les->lescode);
-                return '<span class="cel-eerste" style="color: blue;">' . $lesCode . '</span> ' . "<span class='cel-tweede'>" . $les->GetKlassenShort() . "</span>";
-
-            }
-
-        }
-        return "-";
-    }
-
-    function ZoekKlas($dag, $tijd, $docent)
-    {
-        $timeparts = explode(':', $tijd);
-        $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
-
-        foreach ($this->lessen as $les) {
-            if ($les->dag == $dag && $les->docent == $docent && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS)
-                return $les->GetKlassen();
-        }
-        return "-";
-    }
-
-    function ZoekLokaalLes($dag, $tijd, $lokaal)
-    {
-        $timeparts = explode(':', $tijd);
-        $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
-
-        foreach ($this->lessen as $les) {
-            if (isset($les->lokalen_array)==false) $les->lokalen_array = Array();
-            if ($les->dag == $dag && in_array($lokaal, $les->lokalen_array) && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS)
-                return "<span class='cel-eerste' style='color: blue;'>" . $les->docent . "</span> "  . "<span class='cel-tweede'>" .  $les->GetKlassenShort() ."</span>";
-        }
-        return "-";
-    }
-
-    function ZoekDocentEnLes($dag, $tijd, $klas) {
-        $timeparts = explode(':', $tijd);
-        $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
-
-        foreach ($this->lessen as $les) {
-            if ($les->dag == $dag && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS && in_array($klas, $les->klassen_array)  ) {
-                $lesCode = (array_key_exists($les->lescode, $this->lesalias) ? $this->lesalias[$les->lescode]
-                    : $les->lescode);
-
-                return "<span class='cel-eerste' style='color: blue;'>" . $lesCode . "</span> " . "<span class='cel-tweede'>" . $les->docent . "</span>";
-            }
-        }
-        //if ( $dag == 'ma') Debug(sprintf('%s %s %s -', $dag, $tijd, $klas));
-
-        return "-";
-    }
-}
+require_once 'inc/Les.php';
+require_once 'inc/LessenContainer.php';
 
 class DocentroosterScraper {
 
@@ -175,12 +14,9 @@ class DocentroosterScraper {
     public $lessenContainer;
     public $alle_klassen;
 
-    function __construct($docent, $url, $alleklassen, $allelesblokken) {
+    function __construct($url, $alleklassen, $allelesblokken) {
         $this->lessenContainer = new LessenContainer();
         $this->alle_klassen = $alleklassen;
-
-        $this->docent = $docent;
-        //Debug('Scraping: ' . $url);
 
         $basefolder = __DIR__ . '/../cache/docentroosters/';
         $cachefolder = $basefolder . date('YmdH') . '/';
@@ -209,7 +45,6 @@ class DocentroosterScraper {
             // remove old folders from cachefolder
             rrmdir($basefolder, date('YmdH'));
 
-
             // create timestamped cache folder
             if (!file_exists($cachefolder)) mkdir($cachefolder, 0777, true);
 
@@ -233,8 +68,27 @@ class DocentroosterScraper {
         // query DOM object
         $xpath = new DOMXPath($DOM);
 
-        $lessen = $xpath->query('//div[@class="Rooster width5showTimedays"]/div[@class="Les"]');
-        foreach ($lessen as $les) {
+        $datums = [];
+        $datumobjects = $xpath->query('//div[@class="Rooster width5showTimedays"]/div[@class="dagContainer"]/div[@class="dag width1cell"]');
+        foreach($datumobjects as $datum) {
+            $raw = $datum->nodeValue;
+            $raw = str_replace(' ', '', $raw);
+            $raw = str_replace('Maandag', 'ma/', $raw);
+            $raw = str_replace('Dinsdag', 'di/', $raw);
+            $raw = str_replace('Woensdag', 'wo/', $raw);
+            $raw = str_replace('Donderdag', 'do/', $raw);
+            $raw = str_replace('Vrijdag', 'vr/', $raw);
+            $this->lessenContainer->lesdagen[] = trim($raw);
+        }
+
+        if (! empty($xpath->query('//div[@class="breadcrumbs"]')->item(0)->nodeValue)) {
+
+            $docentraw = $xpath->query('//div[@class="breadcrumbs"]')->item(0)->nodeValue;
+            $raw = explode('>>', $docentraw);
+            $this->docent = trim(end($raw));
+
+            $lessen = $xpath->query('//div[@class="Rooster width5showTimedays"]/div[@class="Les"]');
+            foreach ($lessen as $les) {
                 // <div class="Les" style="width: 155px; height: 201px; top: 169px; left: 160px;" >
                 //                                                                        ---
                 // knip na "left: " en voor "px;"
@@ -249,25 +103,56 @@ class DocentroosterScraper {
                 switch ($p) {
                     case '160':
                         $lesobj->dag = 'ma';
+                        $lesobj->datum = $this->lessenContainer->lesdagen[0];
                         break;
                     case '318':
                         $lesobj->dag = 'di';
+                        $lesobj->datum = $this->lessenContainer->lesdagen[1];
                         break;
                     case '476':
                         $lesobj->dag = 'wo';
+                        $lesobj->datum = $this->lessenContainer->lesdagen[2];
                         break;
                     case '634':
                         $lesobj->dag = 'do';
+                        $lesobj->datum = $this->lessenContainer->lesdagen[3];
                         break;
                     case '792':
                         $lesobj->dag = 'vr';
+                        $lesobj->datum = $this->lessenContainer->lesdagen[4];
                         break;
                 }
 
                 $tijden = $xpath->query('div[@class="LesTijden"]/@title', $les)->item(0)->nodeValue;
                 $start = explode("-", $tijden);
-                $lesobj->starttijd=$start[0];
-                $lesobj->eindtijd=$start[1];
+                $lesobj->starttijd = $start[0];
+                $lesobj->eindtijd = $start[1];
+
+                $to_time = strtotime($start[0]);
+                $from_time = strtotime($start[1]);
+                $lesobj->minuten = round(abs($to_time - $from_time) / 60, 2);
+
+                switch ($lesobj->minuten) {
+                    case 30:
+                    case 45:
+                        $lesobj->halfuren = 1;
+                        break;
+                    case 60:
+                    case 75:
+                        $lesobj->halfuren = 2;
+                        break;
+                    case 90:
+                    case 105:
+                        $lesobj->halfuren = 3;
+                        break;
+                    case 120:
+                    case 135:
+                        $lesobj->halfuren = 4;
+                        break;
+                    default:
+                        $lesobj->halfuren = 1;
+                        break;
+                }
 
                 // kijk voor elk lesblok of de les erin valt
 
@@ -283,7 +168,7 @@ class DocentroosterScraper {
 
                 $lokalen = $xpath->query('div[@class="AttendeeBlockColumn_2"]/div/a', $les);
                 foreach ($lokalen as $lokaal) {
-                    if ( array_key_exists($lokaal->nodeValue, $this->lessenContainer->allelokalen) == false ) {
+                    if (array_key_exists($lokaal->nodeValue, $this->lessenContainer->allelokalen) == false) {
                         // voeg lokaal toe als het nog niet bestaat
                         $lok = $lokaal->nodeValue;
                         $this->lessenContainer->allelokalen[$lok] = $lok;
@@ -291,13 +176,10 @@ class DocentroosterScraper {
                     $lesobj->lokalen_array[] = $lokaal->nodeValue;
                 }
 
-                $this->lessenContainer->lessen[] = $lesobj;
+                $this->lessenContainer->AddLesIfUnique($lesobj);
 
+
+            }
         }
-
-
-
     }
-
-
 }
