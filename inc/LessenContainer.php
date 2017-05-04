@@ -19,8 +19,11 @@ class LessenContainer
     'Begeleidingsuur' => 'begeleid',
     'Begeleiding bedrijfsprojecten' => 'begeleid',
     'begeleiding bedrijfsprojecten' => 'begeleid',
+    'begeleiding examenprojecten' => 'begeleid',
+    'Teamoverleggen op LPP' => 'overleg',
     'Werkoverleg Beheer + Intake' => 'overleg',
     'Werkoverleg AO of Intake' => 'overleg',
+    'Werkoverleggen op LPP' => 'overleg',
     'KEUZEDEEL' => 'KEUZ',
     'Keuzedeel' => 'KEUZ',
     'NEDERLANDS' => 'NED',
@@ -33,6 +36,8 @@ class LessenContainer
     'Vormgeving' => 'VGV',
     'SLB/BS' => 'SLBS',
     'Examentraining' => 'EX.BEG',
+    'Tweede paasdag' => 'vrij',
+    'Goede vrijdag' => 'vrij',
     ];
 
     function ShortenLes($les) {
@@ -61,6 +66,9 @@ class LessenContainer
     }
 
     function AddLesIfUnique(Les $les) {
+        if ($les->lescode == "Goede vrijdag") $les->klassen_array = [];
+        if ($les->lescode == "Tweede paasdag") $les->klassen_array = [];
+
         foreach($this->lessen as $compareles) {
             if($les->dag == $compareles->dag &&
                 $les->docent == $compareles->docent &&
@@ -104,6 +112,29 @@ class LessenContainer
 
         }
         return "-";
+    }
+
+    function getRowspanDocent($dag, $tijd, $docent, $plaintext = false) {
+        if ($tijd == '-----') return 1;
+
+        $les = $this->GetLesEnKlas($dag, $tijd, $docent);
+        if ($les) {
+            return ($les->starttijd == $tijd ? $les->halfuren : 0 );
+        }
+        return 1;
+    }
+
+    function getRowspanKlas($dag, $tijd, $klas, $plaintext = false) {
+        if ($tijd == '-----') return 1;
+        $timeparts = explode(':', $tijd);
+        $tijdTS = mktime($hour = $timeparts[0], $minute=$timeparts[1]);
+
+        foreach ($this->lessen as $les) {
+            if ($les->dag == $dag && $les->GetStartTS() <= $tijdTS && $les->GetEindTS() > $tijdTS && in_array($klas, $les->klassen_array)  ) {
+                return ($les->starttijd == $tijd ? $les->halfuren : 0 );
+            }
+        }
+        return 1;
     }
 
     function GetLesEnKlas($dag, $tijd, $docent, $plaintext = false)

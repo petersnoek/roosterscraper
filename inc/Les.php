@@ -19,27 +19,6 @@ class Les {
         $this->lesblokken = array();
     }
 
-    public $replaceklassen = [
-        'MBICO15M1' => '',
-
-        'MBWZO15OA' => '',
-        'MBWZO15P4A' => '',
-        'MBVVO15ZM' => '',
-        'MBWZO15M4B' => '',
-        'MBWZO15M4C' => '',
-        'MBZDO16AMA' => '',
-        'MBWZO16QC' => '',
-        'MBN2O16HEB' => '',
-        'MBWZO16QA' => '',
-        'MBWZO16QB' => '',
-        'MBN2O16HEA' => '',
-        'MBICO' => '',
-        'MBADO' => '',
-        'MBMAB' => '',
-        'MBGOO' => '',
-        'LPICO' => '',
-    ];
-
     function GetStartTS() {
         if ( isset ($this->starttijd)) {
             $parts = explode(':', $this->starttijd);
@@ -67,11 +46,30 @@ class Les {
             return '';
     }
     function GetKlassenShort($single = true) {
+        $replaceklassen = [
+            'MBICO15M1' => '',
+            'MBWZO15OA' => '',
+            'MBWZO15P4A' => '',
+            'MBVVO15ZM' => '',
+            'MBWZO15M4B' => '',
+            'MBWZO15M4C' => '',
+            'MBZDO16AMA' => '',
+            'MBWZO16QC' => '',
+            'MBN2O16HEB' => '',
+            'MBWZO16QA' => '',
+            'MBWZO16QB' => '',
+            'MBN2O16HEA' => '',
+            'MBICO' => '',
+            'MBADO' => '',
+            'MBMAB' => '',
+            'MBGOO' => '',
+            'LPICO' => '',
+        ];
         if ( isset($this->klassen_array) && sizeof($this->klassen_array)>0) {
             $out = "";
             $counter = 1;
             foreach ($this->klassen_array as $k) {
-                $klas = str_replace(array_keys($this->replaceklassen), array_values($this->replaceklassen), $k);
+                $klas = str_replace(array_keys($replaceklassen), array_values($replaceklassen), $k);
                 //$klas = rtrim($klas, "0");
                 //$klas = rtrim($klas, "1");
                 if ($counter==1) {
@@ -94,6 +92,8 @@ class Les {
 
     function __toString()
     {
-        return sprintf('? ? ? ?-?', $this->docent, $this->dag, $this->lescode, $this->starttijd, $this->eindtijd);
+        return sprintf('%s %s %s %s-%s [%s] [%s]',
+            $this->docent, $this->dag, $this->lescode, $this->starttijd, $this->eindtijd,
+            implode(" ", $this->klassen_array), implode(" ", $this->lokalen_array));
     }
 }

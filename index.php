@@ -85,7 +85,23 @@ $alle_tijden = [
 //    ['27', '21:15', '21:45'],
 ];
 
-$weekyear = '&week=10&year=2017';
+if ( isset($_GET['week']) && intval($_GET['week'])>0 ) {
+    $week = $_GET['week'];
+} else
+{
+    $date = new DateTime();
+    $week = $date->format("W");
+}
+
+if ( isset($_GET['year']) && intval($_GET['year'])>0 ) {
+    $year = $_GET['year'];
+} else
+{
+    $date = new DateTime();
+    $year = $date->format("Y");
+}
+
+$weekyear = '&week=' . $week . '&year=' . $year;
 
 $docenten = [
     'ANS'=>'https://roosters.xedule.nl/Attendee/Schedule/58496?Code=ANS&attId=2&OreId=61' . $weekyear,
@@ -100,8 +116,11 @@ $docenten = [
     'ENU'=>'https://roosters.xedule.nl/Attendee/Schedule/23710?Code=ENU&attId=2&OreId=61' . $weekyear,
     'KWS'=>'https://roosters.xedule.nl/Attendee/Schedule/23610?Code=KWS&attId=2&OreId=61' . $weekyear,
     'VPP'=>'https://roosters.xedule.nl/Attendee/Schedule/23739?Code=VPP&attId=2&OreId=61' . $weekyear,
+
+    //      https://roosters.xedule.nl/Attendee/ScheduleCurrent/23715?Code=SNP&attId=2&OreId=61
     'SNP'=>'https://roosters.xedule.nl/Attendee/Schedule/23715?Code=SNP&attId=2&OreId=61' . $weekyear,
     'ESA'=>'https://roosters.xedule.nl/Attendee/Schedule/75262?Code=ESA&attId=2&OreId=61' . $weekyear,
+    'AZA'=>'https://roosters.xedule.nl/Attendee/Schedule/76693?Code=AZA&attId=2&OreId=61' . $weekyear,
     'MET'=>'https://roosters.xedule.nl/Attendee/Schedule/24448?Code=MET&attId=2&OreId=61' . $weekyear,
     'RSP'=>'https://roosters.xedule.nl/Attendee/Schedule/23609?Code=RSP&attId=2&OreId=61' . $weekyear,
     'KHA'=>'https://roosters.xedule.nl/Attendee/Schedule/23636?Code=KHA&attId=2&OreId=61' . $weekyear,
@@ -169,7 +188,9 @@ foreach($docenten as $docent=>$url) {
 }
 
 $datums = $lessenContainer->lesdagen;
-//var_dump($datums);
+/*
+highlight_string("<?php\n\$data =\n" . var_export($lessenContainer, true) . ";\n?>");
+*/
 
 // tell blade to create HTML from the template "login.blade.php"
 echo $blade->view()->make('main')
@@ -180,4 +201,6 @@ echo $blade->view()->make('main')
     ->with('tijden', $alle_tijden)
     ->with('lokalen', $lessenContainer->allelokalen)
     ->with('klassen', $alle_klassen)
+    ->with('week', $week)
+    ->with('year', $year)
     ->render();

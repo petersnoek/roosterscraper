@@ -53,15 +53,21 @@
         <td class="tijd">{{ $tijd[1] }}</td>
         <td class="tijd">{{ $tijd[2] }}</td>
         @foreach($klassen as $k)
-            @if(isset($k[2]))
-                <td class="{{ $k[2] }}">{{ $k[2] }}</td>
-            @else
-            <td style="background-color: {{ $k[3] }}" title="{{ $lessenContainer->ZoekDocentEnLes($dag, $tijd[1], $k[0], true) }}" >{!! $lessenContainer->ZoekDocentEnLes($dag, $tijd[1], $k[0]) !!}</td>
+            @if ( $lessenContainer->getRowspanKlas($dag, $tijd[1], $k[0]) > 0)
+
+                @if(isset($k[2]))
+                    <td rowspan="{{ $lessenContainer->getRowspanKlas($dag, $tijd[1], $k[0]) }}"  class="{{ $k[2] }}">{{ $k[2] }}</td>
+                @else
+                <td rowspan="{{ $lessenContainer->getRowspanKlas($dag, $tijd[1], $k[0]) }}"  style="background-color: {{ $k[3] or '' }}" title="{{ $lessenContainer->ZoekDocentEnLes($dag, $tijd[1], $k[0], true) }}" >{!! $lessenContainer->ZoekDocentEnLes($dag, $tijd[1], $k[0]) !!}</td>
+                @endif
+
             @endif
         @endforeach
         <td class="separator"></td>
         @foreach($docenten as $docent=>$url)
-            <td rowspan="" title="{{ $lessenContainer->ZoekLesEnKlas($dag, $tijd[1], $docent, true) }}">{!! $lessenContainer->ZoekLesEnKlas($dag, $tijd[1], $docent) !!}</td>
+            @if ( $lessenContainer->getRowspanDocent($dag, $tijd[1], $docent) > 0)
+            <td rowspan="{{ $lessenContainer->getRowspanDocent($dag, $tijd[1], $docent) }}" title="{{ $lessenContainer->ZoekLesEnKlas($dag, $tijd[1], $docent, true) }}">{!! $lessenContainer->ZoekLesEnKlas($dag, $tijd[1], $docent) !!}</td>
+            @endif
         @endforeach
         <td class="separator"></td>
         @foreach($lessenContainer->allelokalen as $lok=>$short)

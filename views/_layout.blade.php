@@ -6,7 +6,7 @@
 	<meta lang="NL">
 
 	<link href="css/style.css" rel="stylesheet">
-	<title>Rooster</title>
+	<title>Roosterscraper</title>
 
 	<!-- font awesome -->
 	<script src="https://use.fontawesome.com/bf8ab24a40.js"></script>
@@ -22,7 +22,8 @@
 
 <!-- show the topmenu bar -->
 <div class="topbar">
-	<span style="float:left;">{{ $dagen[0] }}</span>
+	<span style="float:left;">{{ $week }} {{ $year }}</span>
+
 </div>
 
 <!-- show errors, if present -->

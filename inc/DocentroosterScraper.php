@@ -121,6 +121,9 @@ class DocentroosterScraper {
                         $lesobj->dag = 'vr';
                         $lesobj->datum = $this->lessenContainer->lesdagen[4];
                         break;
+                    default :
+
+
                 }
 
                 $tijden = $xpath->query('div[@class="LesTijden"]/@title', $les)->item(0)->nodeValue;
@@ -132,6 +135,8 @@ class DocentroosterScraper {
                 $from_time = strtotime($start[1]);
                 $lesobj->minuten = round(abs($to_time - $from_time) / 60, 2);
 
+                $lesobj->halfuren = round($lesobj->minuten / 30);
+                /*
                 switch ($lesobj->minuten) {
                     case 30:
                     case 45:
@@ -153,6 +158,7 @@ class DocentroosterScraper {
                         $lesobj->halfuren = 1;
                         break;
                 }
+                */
 
                 // kijk voor elk lesblok of de les erin valt
 
@@ -177,7 +183,6 @@ class DocentroosterScraper {
                 }
 
                 $this->lessenContainer->AddLesIfUnique($lesobj);
-
 
             }
         }
